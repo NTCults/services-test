@@ -1,0 +1,8 @@
+
+{
+    "port": ":8000",
+    "read_timeout": 20,
+    "write_timeout": 20,
+    "cache_expiration_time": 5,
+    "cache_purges_time": 10
+}
