@@ -12,14 +12,9 @@ import (
 	appCache "github.com/NTCults/services-test/main-service/cache"
 	"github.com/NTCults/services-test/main-service/config"
 	"github.com/NTCults/services-test/main-service/models"
+
 	"github.com/NTCults/services-test/utils"
 	"github.com/julienschmidt/httprouter"
-)
-
-const (
-	campaigns = "campaigns"
-	stats     = "stats"
-	tags      = "tags"
 )
 
 var services = map[string]string{
@@ -77,7 +72,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	collectedData := new(models.CollectedData)
 	go func() {
-		wg.Add(3)
+		wg.Add(len(services))
 		for response := range jsonResponses {
 			if err := collectedData.HandleResponse(response); err != nil {
 				fmt.Println(err)
@@ -87,7 +82,12 @@ func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}()
 
 	wg.Wait()
-	data := collectedData.Aggregate()
+	data, err := collectedData.Aggregate()
+	if err != nil {
+		fmt.Println(err)
+		utils.ResponseError(w, http.StatusNotFound, err.Error())
+		return
+	}
 	utils.ResponseJSON(w, http.StatusOK, data)
 }
 

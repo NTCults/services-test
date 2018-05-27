@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/NTCults/services-test/main-service/config"
@@ -53,7 +54,7 @@ func (c *CollectedData) HandleResponse(sr ServiceResponse) error {
 }
 
 // Aggregate aggregates data collected from outer services
-func (c *CollectedData) Aggregate() *[]Info {
+func (c *CollectedData) Aggregate() (*[]Info, error) {
 	var infoArray []Info
 	for _, camp := range c.Campaigns {
 		var info Info
@@ -77,7 +78,11 @@ func (c *CollectedData) Aggregate() *[]Info {
 		}
 		infoArray = append(infoArray, info)
 	}
-	return &infoArray
+	if len(infoArray) < 1 {
+		err := errors.New("No data.")
+		return nil, err
+	}
+	return &infoArray, nil
 }
 
 // Campaign represent data collected from campaigns service
