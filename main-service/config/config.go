@@ -9,6 +9,13 @@ import (
 
 var Config ServerConfig
 
+// Constants useing to indentify outer services
+const (
+	CampaignsServiceName = "campaigns"
+	StatsServiceName     = "stats"
+	TagsServiceName      = "tags"
+)
+
 type ServerConfig struct {
 	Port                string        `json:"port"`
 	ReadTimeout         time.Duration `json:"write_timeout"`

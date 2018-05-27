@@ -1,20 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
+	"time"
 
 	appCache "github.com/NTCults/services-test/main-service/cache"
 	"github.com/NTCults/services-test/main-service/config"
 	"github.com/NTCults/services-test/main-service/models"
-
-	"sync"
-	"time"
-
 	"github.com/NTCults/services-test/utils"
 	"github.com/julienschmidt/httprouter"
 )
@@ -26,15 +23,15 @@ const (
 )
 
 var services = map[string]string{
-	campaigns: "http://campaigns:8090/campaigns/",
-	stats:     "http://stat:8070/stat/",
-	tags:      "http://tags:8060/tags/",
+	config.CampaignsServiceName: "http://campaigns:8090/campaigns/",
+	config.StatsServiceName:     "http://stat:8070/stat/",
+	config.TagsServiceName:      "http://tags:8060/tags/",
 }
 
 var servicesLocal = map[string]string{
-	campaigns: "http://localhost:8090/campaigns/",
-	stats:     "http://localhost:8070/stat/",
-	tags:      "http://localhost:8060/tags/",
+	config.CampaignsServiceName: "http://localhost:8090/campaigns/",
+	config.StatsServiceName:     "http://localhost:8070/stat/",
+	config.TagsServiceName:      "http://localhost:8060/tags/",
 }
 
 func init() {
@@ -72,42 +69,23 @@ func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	accName := p.ByName("account")
 	var wg sync.WaitGroup
 	jsonResponses := make(chan models.ServiceResponse)
+
 	for key, url := range services {
 		wg.Add(1)
 		go makeRequest(url, accName, key, &wg, jsonResponses)
 	}
-	collectedData := new(models.CollectedData)
 
+	collectedData := new(models.CollectedData)
 	go func() {
 		wg.Add(3)
 		for response := range jsonResponses {
-			switch response.ServiceName {
-			case campaigns:
-				var campArray []models.Campaign
-				if err := json.Unmarshal(response.Data, &campArray); err != nil {
-					fmt.Println(err)
-				}
-				collectedData.Campaigns = campArray
-				wg.Done()
-			case stats:
-				var statsArray []models.Stat
-				if err := json.Unmarshal(response.Data, &statsArray); err != nil {
-					fmt.Println(err)
-				}
-				collectedData.Stats = statsArray
-				wg.Done()
-			case tags:
-				var tagsArray []models.Tag
-				if err := json.Unmarshal(response.Data, &tagsArray); err != nil {
-					fmt.Println(err)
-				}
-				collectedData.Tags = tagsArray
-				wg.Done()
-			default:
-				wg.Done()
+			if err := collectedData.HandleResponse(response); err != nil {
+				fmt.Println(err)
 			}
+			wg.Done()
 		}
 	}()
+
 	wg.Wait()
 	data := collectedData.Aggregate()
 	utils.ResponseJSON(w, http.StatusOK, data)

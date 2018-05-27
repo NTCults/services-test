@@ -1,5 +1,12 @@
 package models
 
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/NTCults/services-test/main-service/config"
+)
+
 // ServiceResponse represent data fetched from outer service
 type ServiceResponse struct {
 	ServiceName string
@@ -9,9 +16,40 @@ type ServiceResponse struct {
 
 // CollectedData represent data collected from outer services
 type CollectedData struct {
-	Campaigns []Campaign
-	Stats     []Stat
-	Tags      []Tag
+	Campaigns []campaign
+	Stats     []stat
+	Tags      []tag
+}
+
+// HandleResponse collects data from ServiceResponse
+func (c *CollectedData) HandleResponse(sr ServiceResponse) error {
+	if sr.Err != nil {
+		return sr.Err
+	}
+	switch sr.ServiceName {
+	case config.CampaignsServiceName:
+		var campArray []campaign
+		if err := json.Unmarshal(sr.Data, &campArray); err != nil {
+			fmt.Println(err)
+			return err
+		}
+		c.Campaigns = campArray
+	case config.StatsServiceName:
+		var statsArray []stat
+		if err := json.Unmarshal(sr.Data, &statsArray); err != nil {
+			fmt.Println(err)
+			return err
+		}
+		c.Stats = statsArray
+	case config.TagsServiceName:
+		var tagsArray []tag
+		if err := json.Unmarshal(sr.Data, &tagsArray); err != nil {
+			fmt.Println(err)
+			return err
+		}
+		c.Tags = tagsArray
+	}
+	return nil
 }
 
 // Aggregate aggregates data collected from outer services
@@ -43,13 +81,13 @@ func (c *CollectedData) Aggregate() *[]Info {
 }
 
 // Campaign represent data collected from campaigns service
-type Campaign struct {
+type campaign struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
 }
 
 // Stat represent data collected from stat service
-type Stat struct {
+type stat struct {
 	CampaignID *int   `json:"campaign_id,omitempty"`
 	Date       string `json:"date"`
 	Shows      int    `json:"shows"`
@@ -58,7 +96,7 @@ type Stat struct {
 }
 
 // Tag represent data collected from tag service
-type Tag struct {
+type tag struct {
 	CampaignID *int     `json:"campaign_id,omitempty"`
 	Tags       []string `json:"tags"`
 }
@@ -67,6 +105,6 @@ type Tag struct {
 type Info struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
-	Stat  []Stat `json:"stat"`
-	Tags  []Tag  `json:"tags"`
+	Stat  []stat `json:"stat"`
+	Tags  []tag  `json:"tags"`
 }
