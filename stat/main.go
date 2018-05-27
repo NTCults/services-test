@@ -32,15 +32,6 @@ func main() {
 }
 
 func statHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	// testA := stat{12, time.Now(), 500, 300, 100}
-	// testB := stat{12, time.Now(), 500, 200, 15}
-
-	// var data stats
-
-	// data = append(data, testA)
-	// data = append(data, testB)
-
-	// utils.ResponseJSON(w, http.StatusOK, data)
 	account := p.ByName("account")
 	stat := new(models.Stat)
 	result, err := stat.Get(account, db.Connect)

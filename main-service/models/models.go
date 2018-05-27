@@ -1,5 +1,12 @@
 package models
 
+// ServiceResponse represent data fetched from outer service
+type ServiceResponse struct {
+	ServiceName string
+	Data        []byte
+	Err         error
+}
+
 // CollectedData represent data collected from outer services
 type CollectedData struct {
 	Campaigns []Campaign
