@@ -43,7 +43,6 @@ func init() {
 	if *local {
 		services = servicesLocal
 	}
-	fmt.Println(local)
 	servicesArray := []string{}
 	for k := range services {
 		servicesArray = append(servicesArray, k)
