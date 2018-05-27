@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -30,7 +31,19 @@ var services = map[string]string{
 	tags:      "http://tags:8060/tags/",
 }
 
+var servicesLocal = map[string]string{
+	campaigns: "http://localhost:8090/campaigns/",
+	stats:     "http://localhost:8070/stat/",
+	tags:      "http://localhost:8060/tags/",
+}
+
 func init() {
+	local := flag.Bool("l", false, "Use localhost url for outer services.")
+	flag.Parse()
+	if *local {
+		services = servicesLocal
+	}
+	fmt.Println(local)
 	servicesArray := []string{}
 	for k := range services {
 		servicesArray = append(servicesArray, k)
