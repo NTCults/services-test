@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"services-test/campaigns/db"
-	"services-test/campaigns/models"
+	"github.com/NTCults/services-test/campaigns/db"
+	"github.com/NTCults/services-test/campaigns/models"
 
 	"github.com/NTCults/services-test/utils"
-
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/time/rate"
 )

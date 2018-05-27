@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"services-test/main-service/config"
-	"services-test/main-service/models"
-	appCache "services-test/main-service/cache"
+	"github.com/NTCults/services-test/main-service/config"
+	"github.com/NTCults/services-test/main-service/models"
+	appCache "github.com/NTCults/services-test/main-service/cache"
 
 
 	"sync"

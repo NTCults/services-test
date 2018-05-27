@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"services-test/main-service/config"
+	"github.com/NTCults/services-test/main-service/config"
 	"time"
 
 	"github.com/patrickmn/go-cache"

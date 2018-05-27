@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"services-test/tags/db"
-	"services-test/tags/models"
+	"github.com/NTCults/services-test/tags/db"
+	"github.com/NTCults/services-test/tags/models"
 
 	"github.com/NTCults/services-test/utils"
 
