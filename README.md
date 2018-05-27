@@ -1,5 +1,5 @@
-Works on localhost:8000
-Existing resources:
-    http:localhost:8000/info/user1
-    http:localhost:8000/info/user2
-    http:localhost:8000/info/user3
+#### Main service works on localhost:8000
+#### Existing resources:
+    localhost:8000/info/user1
+    localhost:8000/info/user2
+    localhost:8000/info/user3
