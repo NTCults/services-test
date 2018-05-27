@@ -1,19 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
-	"services-test/campaigns/utils"
+	"services-test/campaigns/db"
+	"services-test/campaigns/models"
+
+	"github.com/NTCults/services-test/campaigns/utils"
 
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/time/rate"
 )
 
-type campaign struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
-}
-
-type campaigns []campaign
+type campaigns []models.Campaign
 
 var limiter = rate.NewLimiter(1, 1)
 
@@ -28,16 +27,20 @@ func limit(next http.Handler) http.Handler {
 }
 
 func main() {
+	db.ConnectToDB()
 	router := httprouter.New()
 	router.GET("/campaigns/:account", campaignsHandler)
 	http.ListenAndServe(":8090", limit(router))
 }
 
 func campaignsHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	testA := campaign{12, "test"}
-	testB := campaign{12, "test"}
-	var data campaigns
-	data = append(data, testA)
-	data = append(data, testB)
-	utils.ResponseJSON(w, http.StatusOK, data)
+	account := p.ByName("account")
+	cmp := new(models.Campaign)
+	result, err := cmp.Get(account, db.Connect)
+	if err != nil {
+		fmt.Println(err)
+		utils.ResponseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	utils.ResponseJSON(w, http.StatusOK, result)
 }

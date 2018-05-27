@@ -1,17 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
-	"services-test/tags/utils"
+	"services-test/tags/db"
+	"services-test/tags/models"
+
+	"github.com/NTCults/services-test/campaigns/utils"
 
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/time/rate"
 )
-
-type tags struct {
-	CampaignID int      `json:"campaign_id"`
-	Tags       []string `json:""tags`
-}
 
 var limiter = rate.NewLimiter(1, 1)
 
@@ -27,19 +26,19 @@ func limit(next http.Handler) http.Handler {
 
 func main() {
 	router := httprouter.New()
+	db.ConnectToDB()
 	router.GET("/tags/:account", tagsHandler)
 	http.ListenAndServe(":8060", limit(router))
 }
 
 func tagsHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	testA := tags{12, []string{"test", "test3"}}
-	testB := tags{12, []string{"test", "test5"}}
-
-	var data []tags
-
-	data = append(data, testA)
-	data = append(data, testB)
-
-	// accName := p.ByName("account")
-	utils.ResponseJSON(w, http.StatusOK, data)
+	account := p.ByName("account")
+	tags := new(models.Tags)
+	result, err := tags.Get(account, db.Connect)
+	if err != nil {
+		fmt.Println(err)
+		utils.ResponseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	utils.ResponseJSON(w, http.StatusOK, result)
 }

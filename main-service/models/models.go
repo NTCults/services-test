@@ -1,9 +1,5 @@
 package models
 
-import (
-	"time"
-)
-
 // CollectedData represent data collected from outer services
 type CollectedData struct {
 	Campaigns []Campaign
@@ -11,7 +7,7 @@ type CollectedData struct {
 	Tags      []Tag
 }
 
-// Aggregate returns result representation of main service
+// Aggregate aggregates data collected from outer services
 func (c *CollectedData) Aggregate() *[]Info {
 	var infoArray []Info
 	for _, camp := range c.Campaigns {
@@ -47,11 +43,11 @@ type Campaign struct {
 
 // Stat represent data collected from stat service
 type Stat struct {
-	CampaignID *int      `json:"campaign_id,omitempty"`
-	Date       time.Time `json:"data"`
-	Shows      int       `json:"shows"`
-	Clicks     int       `json:"clicks"`
-	Costs      int       `json:"costs"`
+	CampaignID *int   `json:"campaign_id,omitempty"`
+	Date       string `json:"date"`
+	Shows      int    `json:"shows"`
+	Clicks     int    `json:"clicks"`
+	Costs      int    `json:"costs"`
 }
 
 // Tag represent data collected from tag service

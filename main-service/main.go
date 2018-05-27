@@ -27,6 +27,12 @@ var services = map[string]string{
 	tags:      "http://localhost:8060/tags/",
 }
 
+type serviceResponse struct {
+	serviceName string
+	data        []byte
+	err         error
+}
+
 func init() {
 	servicesArray := []string{}
 	for k := range services {
@@ -39,7 +45,6 @@ func main() {
 	router := httprouter.New()
 	router.GET("/info/:account", infoHandler)
 	config := config.Config
-	// http.ListenAndServe(":8000", router)
 
 	server := &http.Server{
 		Addr:         config.Port,
@@ -52,12 +57,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-type serviceResponse struct {
-	serviceName string
-	data        []byte
-	err         error
 }
 
 func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -95,6 +94,8 @@ func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 				}
 				collectedData.Tags = tagsArray
 				wg.Done()
+			default:
+				wg.Done()
 			}
 		}
 	}()
@@ -109,6 +110,7 @@ func makeRequest(url string, ID string, serviceName string, wg *sync.WaitGroup, 
 	if err != nil {
 		fmt.Println(err)
 		ch <- serviceResponse{serviceName, []byte{}, err}
+		return
 	}
 
 	if res.StatusCode == http.StatusTooManyRequests {
@@ -121,7 +123,7 @@ func makeRequest(url string, ID string, serviceName string, wg *sync.WaitGroup, 
 	body, err := ioutil.ReadAll(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		ch <- serviceResponse{serviceName, []byte{}, err}
 	}
 	utils.Cache.Set(serviceName, ID, body)

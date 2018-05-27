@@ -7,11 +7,6 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-var (
-	cacheExpirationTime = 5
-	cachePurgesTime     = 10
-)
-
 // Cache is main app cache instance
 var Cache = new(AppCache)
 
@@ -20,10 +15,11 @@ type AppCache struct {
 	stores map[string]*cache.Cache
 }
 
-// InitCache initializes map with caches
+// InitCache initializes applications cache; should be called before the server start
 func (a *AppCache) InitCache(services []string) {
 	expirationTime := config.Config.CacheExpirationTime
 	purgesTime := config.Config.CachePurgesTime
+
 	a.stores = make(map[string]*cache.Cache)
 	for _, s := range services {
 		a.stores[s] = cache.New(time.Duration(expirationTime)*time.Minute,
