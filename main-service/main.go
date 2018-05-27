@@ -84,7 +84,6 @@ func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	wg.Wait()
 	data, err := collectedData.Aggregate()
 	if err != nil {
-		fmt.Println(err)
 		utils.ResponseError(w, http.StatusNotFound, err.Error())
 		return
 	}
