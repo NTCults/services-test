@@ -25,9 +25,9 @@ const (
 )
 
 var services = map[string]string{
-	campaigns: "http://localhost:8090/campaigns/",
-	stats:     "http://localhost:8070/stat/",
-	tags:      "http://localhost:8060/tags/",
+	campaigns: "http://campaigns:8090/campaigns/",
+	stats:     "http://stat:8070/stat/",
+	tags:      "http://tags:8060/tags/",
 }
 
 type serviceResponse struct {

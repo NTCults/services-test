@@ -4,15 +4,25 @@ services:
     build: ./campaigns
     ports:
       - 8090:8090
+    expose:
+      - 8090
   tags:
     build: ./tags
     ports:
       - 8060:8060
+    expose:
+      - 8060
   stat:
     build: ./stat
     ports:
       - 8070:8070
+    expose:
+      - 8070
   main:
     build: ./main-service
     ports:
       - 8000:8000
+    links:
+      - tags
+      - stat
+      - campaigns
