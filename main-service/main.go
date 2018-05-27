@@ -8,10 +8,13 @@ import (
 	"net/http"
 	"services-test/main-service/config"
 	"services-test/main-service/models"
-	"services-test/main-service/utils"
+	appCache "services-test/main-service/cache"
+
+
 	"sync"
 	"time"
 
+	"github.com/NTCults/services-test/utils"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -38,7 +41,7 @@ func init() {
 	for k := range services {
 		servicesArray = append(servicesArray, k)
 	}
-	utils.Cache.InitCache(servicesArray)
+	appCache.Cache.InitCache(servicesArray)
 }
 
 func main() {
@@ -114,7 +117,7 @@ func makeRequest(url string, ID string, serviceName string, wg *sync.WaitGroup, 
 	}
 
 	if res.StatusCode == http.StatusTooManyRequests {
-		ch <- serviceResponse{serviceName, utils.Cache.Get(serviceName, ID), nil}
+		ch <- serviceResponse{serviceName, appCache.Cache.Get(serviceName, ID), nil}
 		fmt.Printf("Rate limit for %s has been exceeded.\n", url)
 		fmt.Println("Data has been fetched from cache.")
 		return
@@ -126,6 +129,6 @@ func makeRequest(url string, ID string, serviceName string, wg *sync.WaitGroup, 
 		fmt.Println(err)
 		ch <- serviceResponse{serviceName, []byte{}, err}
 	}
-	utils.Cache.Set(serviceName, ID, body)
+	appCache.Cache.Set(serviceName, ID, body)
 	ch <- serviceResponse{serviceName, body, nil}
 }

@@ -6,7 +6,7 @@ import (
 	"services-test/stat/db"
 	"services-test/stat/models"
 
-	"github.com/NTCults/services-test/campaigns/utils"
+	"github.com/NTCults/services-test/utils"
 
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/time/rate"
