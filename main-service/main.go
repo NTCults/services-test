@@ -71,8 +71,9 @@ func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 
 	collectedData := new(models.CollectedData)
+	wg.Add(len(services))
 	go func() {
-		wg.Add(len(services))
+		defer close(jsonResponses)
 		for response := range jsonResponses {
 			if err := collectedData.HandleResponse(response); err != nil {
 				fmt.Println(err)
@@ -80,8 +81,8 @@ func infoHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 			wg.Done()
 		}
 	}()
-
 	wg.Wait()
+
 	data, err := collectedData.Aggregate()
 	if err != nil {
 		utils.ResponseError(w, http.StatusNotFound, err.Error())
@@ -111,6 +112,7 @@ func makeRequest(url string, ID string, serviceName string, wg *sync.WaitGroup, 
 	if err != nil {
 		fmt.Println(err)
 		ch <- models.ServiceResponse{serviceName, []byte{}, err}
+		return
 	}
 	appCache.Cache.Set(serviceName, ID, body)
 	ch <- models.ServiceResponse{serviceName, body, nil}
